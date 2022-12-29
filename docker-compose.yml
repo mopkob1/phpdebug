@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  php:
+    container_name: debug
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+      args:
+        # Available [trace|debug|profile]. Use Comma separated available values for multiple mode
+        # Use "off" to disable xdebug
+        - XDEBUG_MODES=debug,trace
+        #        - XDEBUG_MODES=off
+        # Set the following values to overwrite the existing settings.
+        # Uncomment the following line and change value.
+        - REMOTE_HOST=host.docker.internal # Host machine IP
+        - REMOTE_PORT=9003 # IDE/Editor's listener port
+        - IDE_KEY=docker # IDE's filter/listener key
+    ports:
+      - "9035:9000"
+    volumes:
+      - ./code:/var/www/html
+      # Use sudo if required.
+      # RUN: mkdir -p /tmp/xdebug
+      # RUN: chmod -R 777 /tmp/xdebug
+      # Log files will be written in this directory
+      - /tmp/xdebug:/tmp/xdebug
+    environment:
+      PHP_IDE_CONFIG: "serverName=ddebug"
